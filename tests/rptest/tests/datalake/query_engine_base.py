@@ -66,3 +66,11 @@ class QueryEngineBase(ABC):
         query = f"select max(redpanda.offset) from {namespace}.{self.escape_identifier(table)} where redpanda.partition={partition}"
         with self.run_query(query) as cursor:
             return cursor.fetchone()[0]
+
+    @abstractmethod
+    def count_parquet_files(self, namespace, table) -> int:
+        ...
+
+    @abstractmethod
+    def optimize_parquet_files(self, namespace, table) -> None:
+        ...
