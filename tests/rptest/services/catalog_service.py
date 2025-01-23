@@ -21,6 +21,7 @@ class CatalogType(str, Enum):
     REST_JDBC = 'rest_jdbc'
     REST_HADOOP = 'rest_hadoop'
     POLARIS = 'polaris'
+    NESSIE = 'nessie'
 
 
 def catalog_type_to_config_string(catalog_type: CatalogType) -> str:
