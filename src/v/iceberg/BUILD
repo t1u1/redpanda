@@ -141,7 +141,9 @@ redpanda_cc_library(
 
 redpanda_cc_library(
     name = "compatibility_utils",
-    srcs = [],
+    srcs = [
+        "compatibility_utils.cc",
+    ],
     hdrs = [
         "compatibility_utils.h",
     ],

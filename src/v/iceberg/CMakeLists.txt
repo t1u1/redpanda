@@ -43,6 +43,7 @@ v_cc_library(
     catalog.cc
     compatibility.cc
     compatibility_types.cc
+    compatibility_utils.cc
     datatypes.cc
     datatypes_json.cc
     filesystem_catalog.cc
