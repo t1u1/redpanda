@@ -209,8 +209,9 @@ class GenericSchema:
         elif query_engine == QueryEngineType.TRINO:
             table = [(t[0], t[1]) for t in table[1:]]
 
-        assert table == self.table(query_engine), \
-            str(table)
+        expect_table = self.table(query_engine)
+        assert table == expect_table, \
+            f"Expected table description {expect_table}, got {str(table)}"
 
 
 class EvolutionTestCase(NamedTuple):
@@ -650,8 +651,10 @@ class SchemaEvolutionE2ETests(RedpandaTest):
             assert len(select_out) == count*3, \
                 f"Expected {count*3} rows, got {select_out}"
 
-            assert all(r[1] is None for r in select_out[:count * 2])
-            assert all(r[1] is not None for r in select_out[count * 2:])
+            assert all(r[1] is None for r in select_out[:count * 2]), \
+                f"Expected nulls for reintroduced {dropped_field_names} in first {count*2} rows, got {select_out[:count * 2]}"
+            assert all(r[1] is not None for r in select_out[count * 2:]), \
+                f"Expected non-nulls for {dropped_field_names} in last {count} rows, got {select_out[count * 2:]}"
 
     @cluster(num_nodes=3)
     @matrix(
