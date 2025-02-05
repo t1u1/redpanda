@@ -113,6 +113,7 @@ private:
     config::binding<std::chrono::milliseconds> _iceberg_commit_interval;
     config::binding<model::iceberg_invalid_record_action>
       _iceberg_invalid_record_action;
+    std::filesystem::path _writer_scratch_space;
 
     // Translation requires buffering data batches in memory for efficient
     // output representation, this controls the maximum bytes buffered in memory

@@ -14,6 +14,7 @@
 #include "cluster/topic_table.h"
 #include "cluster/types.h"
 #include "config/configuration.h"
+#include "config/node_config.h"
 #include "datalake/backlog_controller.h"
 #include "datalake/catalog_schema_manager.h"
 #include "datalake/cloud_data_io.h"
@@ -104,7 +105,8 @@ datalake_manager::datalake_manager(
   , _iceberg_commit_interval(
       config::shard_local_cfg().iceberg_catalog_commit_interval_ms.bind())
   , _iceberg_invalid_record_action(
-      config::shard_local_cfg().iceberg_invalid_record_action.bind()) {
+      config::shard_local_cfg().iceberg_invalid_record_action.bind())
+  , _writer_scratch_space(config::node().datalake_staging_path()) {
     vassert(memory_limit > 0, "Memory limit must be greater than 0");
     auto max_parallel = static_cast<size_t>(
       std::floor(memory_limit / _effective_max_translator_buffered_data));
@@ -142,6 +144,25 @@ double datalake_manager::average_translation_backlog() {
 }
 
 ss::future<> datalake_manager::start() {
+    /*
+     * Ensure that datalake scratch space directory exists. This is run on each
+     * core (as opposed to only on core-0) because shard initialization happens
+     * in parallel, but the race is handled by ignoring EEXIST.
+     */
+    try {
+        co_await ss::make_directory(
+          config::node().datalake_staging_path().string());
+    } catch (const std::filesystem::filesystem_error& e) {
+        if (e.code() != std::errc::file_exists) {
+            vlog(
+              datalake_log.error,
+              "Could not create datalake staging directory: {}: {}",
+              config::node().datalake_staging_path(),
+              e);
+            throw;
+        }
+    }
+
     _catalog = co_await _catalog_factory->create_catalog();
     _schema_mgr = std::make_unique<catalog_schema_manager>(*_catalog);
     // partition managed notification, this is particularly
@@ -325,7 +346,8 @@ void datalake_manager::start_translator(
       _sg,
       _effective_max_translator_buffered_data,
       &_parallel_translations,
-      invalid_record_action);
+      invalid_record_action,
+      _writer_scratch_space);
     _translators.emplace(partition->ntp(), std::move(translator));
 }
 
