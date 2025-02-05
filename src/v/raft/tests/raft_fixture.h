@@ -273,6 +273,10 @@ public:
 
     service_t& get_service() { return _service; }
 
+    void set_default_recovery_read_size(size_t bytes) {
+        _default_recovery_read_size.update(std::move(bytes));
+    }
+
 private:
     model::node_id _id;
     model::revision_id _revision;
@@ -280,6 +284,7 @@ private:
     ss::sstring _base_directory;
     config::mock_property<size_t> _max_inflight_requests{16};
     config::mock_property<size_t> _max_queued_bytes{1_MiB};
+    config::mock_property<size_t> _default_recovery_read_size{128_KiB};
     ss::shared_ptr<in_memory_test_protocol> _protocol;
     ss::shared_ptr<buffered_protocol> _buffered_protocol;
     ss::sharded<storage::api> _storage;
