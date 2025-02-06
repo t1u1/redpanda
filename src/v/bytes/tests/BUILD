@@ -44,6 +44,22 @@ redpanda_cc_gtest(
     ],
 )
 
+redpanda_cc_gtest(
+    name = "iobuf_fragment_list_test",
+    timeout = "short",
+    srcs = [
+        "iobuf_fragment_list_test.cc",
+    ],
+    cpu = 1,
+    deps = [
+        "//src/v/bytes",
+        "//src/v/bytes:iobuf",
+        "//src/v/test_utils:gtest",
+        "@googletest//:gtest",
+        "@seastar",
+    ],
+)
+
 redpanda_cc_btest(
     name = "iobuf_utils_test",
     timeout = "short",

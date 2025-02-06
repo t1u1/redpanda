@@ -18,7 +18,6 @@
 #include "bytes/details/io_fragment.h"
 #include "bytes/details/io_iterator_consumer.h"
 #include "bytes/details/io_placeholder.h"
-#include "bytes/details/out_of_range.h"
 #include "container/intrusive_list_helpers.h"
 
 #include <seastar/core/temporary_buffer.hh>
@@ -52,7 +51,7 @@
  */
 class iobuf {
     // Not a lightweight object.
-    // 16 bytes for std::list
+    // 16 bytes for io_fragment_list
     // 8  bytes for _size_bytes
     // -----------------------
     //
@@ -60,7 +59,7 @@ class iobuf {
 
     // Each fragment:
     // 24  of ss::temporary_buffer<>
-    // 16  for left,right pointers
+    // 16  for prev,next pointers
     // 8   for consumed capacity
     // -----------------------
     //
@@ -68,7 +67,7 @@ class iobuf {
 
 public:
     using fragment = details::io_fragment;
-    using container = uncounted_intrusive_list<fragment, &fragment::hook>;
+    using container = details::io_fragment_list;
     using iterator = typename container::iterator;
     using reverse_iterator = typename container::reverse_iterator;
     using const_iterator = typename container::const_iterator;
@@ -90,10 +89,8 @@ public:
     ~iobuf() noexcept;
     iobuf(iobuf&& x) noexcept
       : _frags(std::move(x._frags))
-      , _size(x._size) {
-        x._frags = container{};
-        x._size = 0;
-    }
+      , _size(std::exchange(x._size, 0)) {}
+
     iobuf& operator=(iobuf&& x) noexcept {
         if (this != &x) {
             this->~iobuf();
