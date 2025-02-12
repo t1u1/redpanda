@@ -146,7 +146,9 @@ def compute_size(data_dir: Path, sizes: bool, calculate_md5: bool,
     for ns in safe_listdir(data_dir):
         if not safe_isdir(ns):
             continue
-        if ns.name in ["cloud_storage_cache", "crash_reports"]:
+        if ns.name in [
+                "cloud_storage_cache", "crash_reports", "datalake_staging"
+        ]:
             continue
         ns_output = {}
         for topic in safe_listdir(ns):
