@@ -143,6 +143,29 @@ TEST_F(controller_snapshot_reconciliation_fixture, test_reocnciler_license) {
     validate_actions(actions);
 }
 
+TEST(cluster_recovery_reconciler_test, test_config_ignore_list) {
+    const chunked_hash_set<ss::sstring> expected_ignore_list = {
+      "cloud_storage_cache_size",
+      "cluster_id",
+      "cloud_storage_access_key",
+      "cloud_storage_secret_key",
+      "cloud_storage_region",
+      "cloud_storage_bucket",
+      "cloud_storage_api_endpoint",
+      "cloud_storage_credentials_source",
+      "cloud_storage_trust_file",
+      "cloud_storage_backend",
+      "cloud_storage_credentials_host",
+      "cloud_storage_azure_storage_account",
+      "cloud_storage_azure_container",
+      "cloud_storage_azure_shared_key",
+      "cloud_storage_azure_adls_endpoint",
+      "cloud_storage_azure_adls_port",
+    };
+    auto ignore_list = controller_snapshot_reconciler::properties_ignore_list();
+    ASSERT_EQ(ignore_list, expected_ignore_list);
+}
+
 TEST_F(
   controller_snapshot_reconciliation_fixture, test_reconcile_cluster_config) {
     auto d = ss::defer(
