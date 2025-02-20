@@ -19,10 +19,10 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          apt-get update
-          apt-get install -y curl wget git nodejs npm sudo
-          npm install -g @bazel/bazelisk
-          ln -s /usr/local/bin/bazelisk /usr/local/bin/bazel
+          sudo apt-get update
+          sudo apt-get install -y curl wget git nodejs npm sudo
+          sudo npm install -g @bazel/bazelisk
+          sudo ln -s /usr/local/bin/bazelisk /usr/local/bin/bazel
 
       - name: Install Redpanda System Dependencies
         run: ./bazel/install-deps.sh
