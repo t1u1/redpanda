@@ -3,7 +3,7 @@ name: Build Redpanda on ARM 32-bit
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   build:
