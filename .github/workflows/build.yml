@@ -8,9 +8,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: arm32v7/ubuntu:20.04
     steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm32v7
+
       - name: Checkout Repository
         uses: actions/checkout@v2
 
