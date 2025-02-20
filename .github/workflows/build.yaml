@@ -1,0 +1,34 @@
+name: Build Redpanda on ARM 32-bit
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: arm32v7/ubuntu:20.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: |
+          apt-get update
+          apt-get install -y curl wget git nodejs npm sudo
+          npm install -g @bazel/bazelisk
+          ln -s /usr/local/bin/bazelisk /usr/local/bin/bazel
+
+      - name: Install Redpanda System Dependencies
+        run: ./bazel/install-deps.sh
+
+      - name: Build Redpanda
+        run: bazel build --config=release
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: redpanda-artifacts
+          path: bazel-bin
