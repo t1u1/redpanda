@@ -28,7 +28,7 @@ jobs:
         run: sudo ./bazel/install-deps.sh
 
       - name: Build Redpanda
-        run: bazel build --config=release
+        run: bazel build --config=release redpanda
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
